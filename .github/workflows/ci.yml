@@ -1,4 +1,4 @@
-name: Python CI with GitHub Pages Deployment
+name: Python CI and Deploy
 
 on:
   push:
@@ -11,7 +11,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -30,34 +29,16 @@ jobs:
         run: pytest
 
   deploy:
-    runs-on: ubuntu-latest
     needs: test
-    if: success()  # Only run this job if tests pass
-
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Build the project
-        run: |
-          # Add your build steps here, e.g.:
-          # npm run build (for a React app)
-          # or 
-          # python setup.py install (for some Python-based projects)
-          
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages  # The branch to deploy to
-          folder: build     # Folder with your built site (adjust if necessary)
+          branch: gh-pages         # Deployment branch
+          folder: site             # Folder to deploy
           token: ${{ secrets.GITHUB_TOKEN }}
